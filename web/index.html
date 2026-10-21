@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="Dupescan — duplicate detection that merge-sorts your data first, then scans once. Real Python runs in your browser via WebAssembly; nothing is uploaded."
+    />
+    <title>Dupescan — sort first, scan once</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f2a54a'/%3E%3Ctext x='16' y='23' font-size='18' text-anchor='middle' fill='%2315120e' font-family='monospace'%3E%2261%3C/text%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <div class="bg-glow" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <div class="container header-row">
+        <a class="brand" href="#">
+          <span class="brand-mark" aria-hidden="true">≡</span>
+          <span class="brand-name">dupescan</span>
+        </a>
+        <div class="runtime-badge" id="runtimeBadge" data-kind="busy">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="runtimeBadgeText">booting…</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <p class="kicker">merge sort first · one linear pass after</p>
+        <h1>Sort first.<br />Scan once.<br /><em>Duplicates can’t hide.</em></h1>
+        <p class="lede">
+          Paste any list and watch a two-phase algorithm work: a stable
+          <strong>merge sort</strong> (O(n&nbsp;log&nbsp;n)) groups equal values
+          together, then a single <strong>adjacent scan</strong> (O(n)) collects
+          every duplicate — no hash table, no nested loops. The original Python
+          module runs <em>unmodified</em> in your browser through WebAssembly,
+          so your data never leaves this tab.
+        </p>
+      </section>
+
+      <section class="tool" id="tool">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Input</h2>
+            <span class="panel-hint">split on spaces, commas or new lines</span>
+          </div>
+
+          <label class="sr-only" for="input">Values to scan for duplicates</label>
+          <textarea
+            id="input"
+            rows="6"
+            spellcheck="false"
+            placeholder="ember 42 basalt 7 ember 99 42 7 7 …"
+          ></textarea>
+
+          <div class="controls">
+            <label class="check">
+              <input type="checkbox" id="asNumbers" />
+              <span>interpret as numbers</span>
+            </label>
+            <label class="check">
+              <input type="checkbox" id="showCounts" checked />
+              <span>show counts</span>
+            </label>
+            <div class="spacer"></div>
+            <label class="filebtn" for="fileInput">load file</label>
+            <input type="file" id="fileInput" accept=".txt,.csv,.log,.json,text/*" hidden />
+            <button type="button" id="sampleBtn" class="ghost">sample data</button>
+            <button type="button" id="detectBtn" class="primary" disabled>
+              detect duplicates
+            </button>
+          </div>
+
+          <p class="status" id="status" data-kind="busy" role="status">
+            Loading the Python runtime…
+          </p>
+        </div>
+
+        <div class="panel results" id="results" hidden>
+          <div class="panel-head">
+            <h2>Report</h2>
+            <span class="panel-hint" id="reportMeta"></span>
+          </div>
+
+          <div class="stats" id="stats"></div>
+
+          <div class="phase" title="Relative time spent in each phase">
+            <div class="phase-bar">
+              <div class="phase-sort" id="phaseSort"></div>
+              <div class="phase-scan" id="phaseScan"></div>
+            </div>
+            <div class="phase-legend">
+              <span><i class="swatch sort"></i>merge sort</span>
+              <span><i class="swatch scan"></i>adjacent scan</span>
+            </div>
+          </div>
+
+          <h3 class="subhead">Duplicates</h3>
+          <div id="dupList" class="dup-list"></div>
+
+          <h3 class="subhead">
+            Sorted output <span class="panel-hint" id="sortedMeta"></span>
+          </h3>
+          <div id="sortedChips" class="chips"></div>
+        </div>
+      </section>
+
+      <section class="how">
+        <h2 class="how-title">How it works</h2>
+        <div class="steps">
+          <article class="step">
+            <span class="step-num">01</span>
+            <h3>Merge sort</h3>
+            <p>
+              The list is divided in half and merged back together in order —
+              stable, predictable, O(n&nbsp;log&nbsp;n). Equal values end up
+              side by side.
+            </p>
+          </article>
+          <article class="step">
+            <span class="step-num">02</span>
+            <h3>Adjacent scan</h3>
+            <p>
+              One forward pass compares neighbors. Any run of equal values
+              becomes a duplicate with its occurrence count. Strictly
+              O(n) — the whole point of sorting first.
+            </p>
+          </article>
+          <article class="step">
+            <span class="step-num">03</span>
+            <h3>Why not a hash set?</h3>
+            <p>
+              A set finds duplicates too, but it hides <em>which</em> order your
+              data is in. Sorting gives you the report <em>and</em> the ordered
+              data, on any comparable values.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-row">
+        <span>dupescan · merge sort + linear scan</span>
+        <span>
+          powered by <a href="https://pyodide.org" rel="noopener">Pyodide</a> —
+          CPython in WebAssembly
+        </span>
+      </div>
+    </footer>
+
+    <noscript>
+      <div class="noscript">
+        dupescan needs JavaScript: Python itself runs in your browser via
+        WebAssembly. The same engine works without a browser:
+        <code>python3 duplicate_detector.py --items a b a</code>
+      </div>
+    </noscript>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
